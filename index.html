@@ -1,0 +1,1201 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Savely — Pencatat Keuangan</title>
+    <style>
+        :root {
+            --bg: #f6f7fb;
+            --card: #fff;
+            --text: #18212f;
+            --muted: #6b7280;
+            --line: #e7eaf0;
+            --primary: #12A878;
+            --primary2: #7c73ff;
+            --green: #12A878;
+            --red: #E85D4A;
+            --yellow: #F4B740;
+            --shadow: 0 12px 35px rgba(29, 38, 63, .07)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        button,
+        input,
+        select {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh
+        }
+
+        .sidebar {
+            width: 250px;
+            background: #fff;
+            border-right: 1px solid var(--line);
+            padding: 24px 18px;
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 5
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            font-weight: 800;
+            font-size: 20px;
+            padding: 8px 10px 28px
+        }
+
+        .logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), #9d8cff);
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 19px
+        }
+
+        .nav {
+            display: grid;
+            gap: 7px
+        }
+
+        .nav button {
+            border: 0;
+            background: transparent;
+            color: #667085;
+            text-align: left;
+            padding: 12px 14px;
+            border-radius: 11px;
+            font-weight: 600
+        }
+
+        .nav button.active,
+        .nav button:hover {
+            background: #f0efff;
+            color: var(--primary)
+        }
+
+        .side-note {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 22px;
+            padding: 15px;
+            border-radius: 15px;
+            background: #F0FDF8;
+            color: #625bc9;
+            font-size: 12px;
+            line-height: 1.5
+        }
+
+        .main {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+            padding: 28px 34px 50px
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 26px
+        }
+
+        .eyebrow {
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em
+        }
+
+        .top h1 {
+            margin: 4px 0 0;
+            font-size: 28px
+        }
+
+        .actions {
+            display: flex;
+            gap: 9px
+        }
+
+        .btn {
+            border: 1px solid var(--line);
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-weight: 700;
+            color: #344054
+        }
+
+        .btn.primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary)
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(30, 40, 70, .08)
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow)
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--muted);
+            font-weight: 600
+        }
+
+        .stat {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 9px 0 5px
+        }
+
+        .stat.green {
+            color: var(--green)
+        }
+
+        .stat.red {
+            color: var(--red)
+        }
+
+        .stat.purple {
+            color: var(--primary)
+        }
+
+        .sub {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.4fr .9fr;
+            gap: 18px;
+            margin-top: 18px
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px
+        }
+
+        .section-head h2 {
+            font-size: 17px;
+            margin: 0
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .input,
+        .select {
+            border: 1px solid var(--line);
+            border-radius: 9px;
+            padding: 9px 11px;
+            background: #fff;
+            outline: none
+        }
+
+        .input:focus,
+        .select:focus {
+            border-color: #aaa4ff;
+            box-shadow: 0 0 0 3px #efeeff
+        }
+
+        .chart-wrap {
+            height: 280px;
+            position: relative;
+            min-width: 0
+        }
+
+        .chart-wrap canvas {
+            display: block;
+            width: 100%;
+            height: 100%
+        }
+
+        .legend {
+            display: flex;
+            gap: 18px;
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px
+        }
+
+        .goal {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--line)
+        }
+
+        .goal:last-child {
+            border-bottom: 0
+        }
+
+        .goal-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px
+        }
+
+        .goal-name {
+            font-weight: 750
+        }
+
+        .goal-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px
+        }
+
+        .bar {
+            height: 9px;
+            background: #eef0f5;
+            border-radius: 99px;
+            overflow: hidden;
+            margin: 10px 0 6px
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #9a8fff);
+            border-radius: 99px
+        }
+
+        .goal-actions {
+            display: flex;
+            gap: 6px
+        }
+
+        .icon-btn {
+            border: 0;
+            background: #f5f6f9;
+            border-radius: 8px;
+            padding: 7px 9px;
+            color: #667085
+        }
+
+        .table-card {
+            margin-top: 18px
+        }
+
+        .table-scroll {
+            overflow: auto
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        .table th,
+        .table td {
+            text-align: left;
+            padding: 13px 10px;
+            border-bottom: 1px solid var(--line);
+            font-size: 13px;
+            white-space: nowrap
+        }
+
+        .table th {
+            color: #667085;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .04em
+        }
+
+        .income {
+            color: var(--green);
+            font-weight: 750
+        }
+
+        .expense {
+            color: var(--red);
+            font-weight: 750
+        }
+
+        .empty {
+            text-align: center;
+            color: var(--muted);
+            padding: 40px
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, .42);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            padding: 18px
+        }
+
+        .modal.show {
+            display: flex
+        }
+
+        .dialog {
+            background: #fff;
+            width: min(520px, 100%);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, .2)
+        }
+
+        .dialog h3 {
+            margin: 0 0 18px
+        }
+
+        .form {
+            display: grid;
+            gap: 12px
+        }
+
+        .form label {
+            font-size: 12px;
+            color: #667085;
+            font-weight: 700
+        }
+
+        .form input,
+        .form select {
+            width: 100%;
+            margin-top: 6px
+        }
+
+        .two {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px
+        }
+
+        .dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 18px
+        }
+
+        .toast {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            background: #18212f;
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 10px;
+            display: none;
+            z-index: 30;
+            font-size: 13px
+        }
+
+        .toast.show {
+            display: block
+        }
+
+        .page {
+            display: none
+        }
+
+        .page.active {
+            display: block
+        }
+
+        .goal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px
+        }
+
+        .monthly-cards {
+            margin-top: 18px
+        }
+
+        .monthly-cards .card {
+            box-shadow: none
+        }
+
+        .goal-big {
+            font-size: 27px;
+            font-weight: 800;
+            margin: 7px 0
+        }
+
+        .goal-card {
+            min-height: 170px
+        }
+
+        .danger {
+            color: var(--red)
+        }
+
+        @media(max-width:1050px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            .goal-grid {
+                grid-template-columns: repeat(2, 1fr)
+            }
+        }
+
+        @media(max-width:720px) {
+            .sidebar {
+                width: 72px;
+                padding: 14px 9px
+            }
+
+            .brand span,
+            .nav button span,
+            .side-note {
+                display: none
+            }
+
+            .brand {
+                padding: 5px 7px 22px
+            }
+
+            .nav button {
+                text-align: center;
+                padding: 12px
+            }
+
+            .main {
+                margin-left: 72px;
+                width: calc(100% - 72px);
+                padding: 20px 14px
+            }
+
+            .top {
+                align-items: flex-start;
+                gap: 12px
+            }
+
+            .top h1 {
+                font-size: 22px
+            }
+
+            .actions .btn {
+                padding: 9px
+            }
+
+            .cards {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .two {
+                grid-template-columns: 1fr
+            }
+
+            .goal-grid {
+                grid-template-columns: 1fr
+            }
+
+            .table th:nth-child(4),
+            .table td:nth-child(4) {
+                display: none
+            }
+        }
+
+        .logo.image-logo {
+            overflow: hidden;
+            background: #fff
+        }
+
+        .logo.image-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block
+        }
+
+        /* SAVELY BRAND THEME */
+        :root {
+            --brand: #12A878;
+            --brand-dark: #087F5B;
+            --teal: #087F78;
+            --lime: #7ED321;
+            --gold: #F4B740;
+            --gold-soft: #FFF7DB;
+            --danger: #E85D4A;
+            --bg: #F5FAF8;
+            --text: #102A24;
+            --muted: #667C75;
+            --border: #DDEBE5;
+        }
+
+        body {
+            background: var(--bg) !important;
+            color: var(--text) !important
+        }
+
+        .main {
+            background: linear-gradient(135deg, #F8FCFA 0%, #F1FAF6 55%, #FAFDF8 100%) !important
+        }
+
+        .sidebar {
+            background: #fff !important;
+            border-right-color: var(--border) !important
+        }
+
+        .card {
+            border-color: var(--border) !important;
+            box-shadow: 0 10px 30px rgba(8, 127, 91, .06) !important
+        }
+
+        .nav button.active {
+            background: linear-gradient(135deg, #E5F8EF, #EFFBEF) !important;
+            color: var(--brand-dark) !important
+        }
+
+        .nav button:hover {
+            background: #F0FAF6 !important;
+            color: var(--brand-dark) !important
+        }
+
+        .btn-primary,
+        .primary {
+            background: linear-gradient(135deg, var(--brand), #0B8F69) !important;
+            border-color: transparent !important;
+            box-shadow: 0 8px 18px rgba(18, 168, 120, .18) !important
+        }
+
+        .btn-primary:hover,
+        .primary:hover {
+            background: linear-gradient(135deg, #0B8F69, var(--brand-dark)) !important
+        }
+
+        .input:focus,
+        .select:focus {
+            border-color: #69CFAF !important;
+            box-shadow: 0 0 0 3px rgba(18, 168, 120, .10) !important
+        }
+
+        .eyebrow {
+            color: var(--brand-dark) !important
+        }
+
+        .stat.purple,
+        .stat.primary {
+            color: var(--brand) !important
+        }
+
+        .stat.green {
+            color: #0B9A67 !important
+        }
+
+        .stat.red {
+            color: var(--danger) !important
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--brand), var(--lime)) !important
+        }
+
+        .goal-big {
+            color: var(--brand-dark) !important
+        }
+
+        .icon-btn:hover {
+            border-color: #B9E5D4 !important;
+            color: var(--brand-dark) !important;
+            background: #F0FBF7 !important
+        }
+
+        .section-head h2,
+        h1,
+        h2,
+        h3 {
+            color: var(--text) !important
+        }
+
+        .table-card th {
+            color: #4D6B61 !important
+        }
+
+        .brand-mark.image-logo {
+            background: linear-gradient(135deg, #E9FFF3, #F8FFF0) !important;
+            border: 1px solid #DFF2E8;
+            box-shadow: 0 6px 16px rgba(18, 168, 120, .10)
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo image-logo"><img
+                        src="LogoSavely-removebg-preview.png"
+                        alt="Savely"></div><span>Savely</span>
+            </div>
+            <nav class="nav">
+                <button class="active" data-page="dashboard"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="25" height="20" viewBox="0 0 32 32">
+<path d="M 16 2.59375 L 15.28125 3.28125 L 2.28125 16.28125 L 3.71875 17.71875 L 5 16.4375 L 5 28 L 14 28 L 14 18 L 18 18 L 18 28 L 27 28 L 27 16.4375 L 28.28125 17.71875 L 29.71875 16.28125 L 16.71875 3.28125 Z M 16 5.4375 L 25 14.4375 L 25 26 L 20 26 L 20 16 L 12 16 L 12 26 L 7 26 L 7 14.4375 Z"></path>
+</svg><span>Dashboard</span></button>
+                <button data-page="transactions"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="20" height="20" viewBox="0 0 50 50">
+<path d="M 7 2 L 7 48 L 43 48 L 43 14.59375 L 42.71875 14.28125 L 30.71875 2.28125 L 30.40625 2 Z M 9 4 L 29 4 L 29 16 L 41 16 L 41 46 L 9 46 Z M 31 5.4375 L 39.5625 14 L 31 14 Z M 15 22 L 15 24 L 35 24 L 35 22 Z M 15 28 L 15 30 L 31 30 L 31 28 Z M 15 34 L 15 36 L 35 36 L 35 34 Z"></path>
+</svg> <span>Transaksi</span></button>
+                <button data-page="goals"><img width="20" height="20" src="https://img.icons8.com/ios/50/wallet-app--v1.png" alt="wallet-app--v1"/>  <span>Target Tabungan</span></button>
+                <button data-page="reports"><img width="20" height="20" src="https://img.icons8.com/forma-light/24/book.png" alt="book"/> <span>Laporan</span></button>
+            </nav>
+            <div class="side-note">Data tersimpan otomatis di browser Anda.<br><b>Privat & offline.</b></div>
+        </aside>
+
+        <main class="main">
+            <section id="dashboard" class="page active">
+                <div class="top">
+                    <div>
+                        <div class="eyebrow">Keuangan pribadi</div>
+                        <h1>Dashboard</h1>
+                    </div>
+                    <div class="actions"><button class="btn" onclick="exportCSV()">Ekspor Excel</button><button
+                            class="btn primary" onclick="openTx()">+ Transaksi</button></div>
+                </div>
+                <div class="cards">
+                    <div class="card">
+                        <div class="stat-label">Saldo saat ini</div>
+                        <div id="balance" class="stat purple">Rp0</div>
+                        <div class="sub">Pemasukan − pengeluaran</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Total pemasukan</div>
+                        <div id="income" class="stat green">Rp0</div>
+                        <div class="sub">Semua pemasukan tercatat</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Total pengeluaran</div>
+                        <div id="expense" class="stat red">Rp0</div>
+                        <div class="sub">Semua pengeluaran tercatat</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Target tabungan</div>
+                        <div id="goalStat" class="stat">0 target</div>
+                        <div id="goalSub" class="sub">Belum ada target</div>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Arus kas 6 bulan</h2><span class="sub">Dimulai dari bulan transaksi pertama</span>
+                            <div class="legend"><span><i class="dot"
+                                        style="background:#12A878"></i>Pemasukan</span><span><i class="dot"
+                                        style="background:#E85D4A"></i>Pengeluaran</span></div>
+                        </div>
+                        <div class="chart-wrap"><canvas id="cashChart"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Target tabungan</h2><button class="btn" onclick="showPage('goals')">Lihat semua</button>
+                        </div>
+                        <div id="goalList"></div>
+                    </div>
+                </div>
+                <div class="card table-card">
+                    <div class="section-head">
+                        <h2>Transaksi terbaru</h2><button class="btn" onclick="showPage('transactions')">Lihat
+                            semua</button>
+                    </div>
+                    <div class="table-scroll">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Deskripsi</th>
+                                    <th>Kategori</th>
+                                    <th>Metode</th>
+                                    <th>Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="transactions" class="page">
+                <div class="top">
+                    <div>
+                        <div class="eyebrow">Catatan uang</div>
+                        <h1>Transaksi</h1>
+                    </div>
+                    <div class="actions"><button class="btn" onclick="exportJSON()">Backup JSON</button><button
+                            class="btn" onclick="exportCSV()">Ekspor Excel</button><button class="btn primary"
+                            onclick="openTx()">+ Transaksi</button></div>
+                </div>
+                <div class="card">
+                    <div class="section-head">
+                        <h2>Pencatatan Bulanan</h2><span id="monthLabel" class="sub"></span>
+                    </div>
+                    <div class="filters">
+                        <input id="monthFilter" class="input" type="month" onchange="renderAll()">
+                        <input id="search" class="input" placeholder="Cari transaksi..." oninput="renderTransactions()">
+                        <select id="typeFilter" class="select" onchange="renderTransactions()">
+                            <option value="">Semua tipe</option>
+                            <option value="income">Pemasukan</option>
+                            <option value="expense">Pengeluaran</option>
+                        </select>
+                        <select id="catFilter" class="select" onchange="renderTransactions()">
+                            <option value="">Semua kategori</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="cards monthly-cards">
+                    <div class="card">
+                        <div class="stat-label">Pemasukan bulan ini</div>
+                        <div id="monthIncome" class="stat green">Rp0</div>
+                        <div class="sub">Bulan yang dipilih</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Pengeluaran bulan ini</div>
+                        <div id="monthExpense" class="stat red">Rp0</div>
+                        <div class="sub">Termasuk tabungan</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Sisa bulan ini</div>
+                        <div id="monthBalance" class="stat purple">Rp0</div>
+                        <div class="sub">Pemasukan − pengeluaran</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Jumlah transaksi</div>
+                        <div id="monthCount" class="stat">0</div>
+                        <div class="sub">Pada bulan terpilih</div>
+                    </div>
+                </div>
+                <div class="card table-card">
+                    <div class="table-scroll">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Deskripsi</th>
+                                    <th>Kategori</th>
+                                    <th>Metode</th>
+                                    <th>Jumlah</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="allTx"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section id="goals" class="page">
+                <div class="top">
+                    <div>
+                        <div class="eyebrow">Rencana masa depan</div>
+                        <h1>Target Tabungan</h1>
+                    </div><button class="btn primary" onclick="openGoal()">+ Target Baru</button>
+                </div>
+                <div id="goalGrid" class="goal-grid"></div>
+            </section>
+
+            <section id="reports" class="page">
+                <div class="top">
+                    <div>
+                        <div class="eyebrow">Ringkasan</div>
+                        <h1>Laporan Keuangan</h1>
+                    </div>
+                    <div class="actions"><button class="btn" onclick="exportCSV()">Ekspor Excel</button><button
+                            class="btn" onclick="window.print()">Cetak</button></div>
+                </div>
+                <div class="cards">
+                    <div class="card">
+                        <div class="stat-label">Rasio menabung</div>
+                        <div id="savingRate" class="stat purple">0%</div>
+                        <div class="sub">Pemasukan yang tidak dibelanjakan</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Jumlah transaksi</div>
+                        <div id="txCount" class="stat">0</div>
+                        <div class="sub">Total catatan</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Rata-rata pengeluaran</div>
+                        <div id="avgExpense" class="stat red">Rp0</div>
+                        <div class="sub">Per transaksi pengeluaran</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-label">Dana target</div>
+                        <div id="goalFunds" class="stat green">Rp0</div>
+                        <div class="sub">Total uang pada target</div>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Komposisi pengeluaran</h2>
+                        </div>
+                        <div class="chart-wrap"><canvas id="catChart"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Perkembangan tabungan</h2><span class="sub">Dimulai dari bulan transaksi pertama</span>
+                        </div>
+                        <div class="chart-wrap"><canvas id="savingChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <div class="section-head">
+                            <h2>Tips singkat</h2>
+                        </div>
+                        <p style="color:#667085;line-height:1.7;font-size:14px">Gunakan kategori yang konsisten, catat
+                            transaksi segera setelah terjadi, lalu buat target dengan nominal dan tenggat yang
+                            realistis.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="txModal" class="modal">
+        <div class="dialog">
+            <h3>Tambah transaksi</h3>
+            <div class="form">
+                <label>Tipe<select id="txType" class="select">
+                        <option value="income">Pemasukan</option>
+                        <option value="expense">Pengeluaran</option>
+                    </select></label>
+                <div class="two"><label>Tanggal<input id="txDate" class="input" type="date"></label><label>Jumlah<input
+                            id="txAmount" class="input" type="number" min="0" placeholder="50000"></label></div>
+                <div class="two"><label>Deskripsi<input id="txDesc" class="input"
+                            placeholder="Contoh: Gaji bulanan"></label><label>Kategori<select id="txCat" class="select">
+                            <option>Gaji</option>
+                            <option>Bonus</option>
+                            <option>Tabungan</option>
+                            <option>Makanan</option>
+                            <option>Transportasi</option>
+                            <option>Belanja</option>
+                            <option>Tagihan</option>
+                            <option>Hiburan</option>
+                            <option>Kesehatan</option>
+                            <option>Pendidikan</option>
+                            <option>Lainnya</option>
+                        </select></label></div>
+                <label>Metode<select id="txMethod" class="select">
+                        <option>Transfer</option>
+                        <option>Cash</option>
+                        <option>E-Wallet</option>
+                        <option>Kartu</option>
+                    </select></label>
+            </div>
+            <div class="dialog-actions"><button class="btn" onclick="closeModal('txModal')">Batal</button><button
+                    class="btn primary" onclick="saveTx()">Simpan</button></div>
+        </div>
+    </div>
+
+    <div id="goalModal" class="modal">
+        <div class="dialog">
+            <h3>Target tabungan baru</h3>
+            <div class="form">
+                <label>Nama target<input id="goalName" class="input" placeholder="Contoh: Dana liburan"></label>
+                <div class="two"><label>Target nominal<input id="goalTarget" class="input" type="number" min="1"
+                            placeholder="10000000"></label><label>Sudah terkumpul<input id="goalSaved" class="input"
+                            type="number" min="0" placeholder="1000000"></label></div>
+                <label>Tenggat<input id="goalDate" class="input" type="date"></label>
+            </div>
+            <div class="dialog-actions"><button class="btn" onclick="closeModal('goalModal')">Batal</button><button
+                    class="btn primary" onclick="saveGoal()">Simpan target</button></div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const KEY = 'dompetku_v1';
+        let data = JSON.parse(localStorage.getItem(KEY) || '{"transactions":[],"goals":[]}');
+        const rp = n => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
+        const today = () => new Date().toISOString().slice(0, 10);
+        const currentMonth = () => today().slice(0, 7);
+        function formatMonth(m) { if (!m) return ''; let [y, mo] = m.split('-'); return new Date(+y, +mo - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }); }
+        function save() { localStorage.setItem(KEY, JSON.stringify(data)); renderAll() }
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav button').forEach(x => x.classList.toggle('active', x.dataset.page === id));
+            renderAll();
+            requestAnimationFrame(() => { drawCharts(); drawSavingChart() });
+            setTimeout(() => { drawCharts(); drawSavingChart() }, 80);
+        }
+        document.querySelectorAll('.nav button').forEach(b => b.onclick = () => showPage(b.dataset.page));
+        function openTx() { document.getElementById('txDate').value = today(); document.getElementById('txModal').classList.add('show') }
+        function openGoal() { document.getElementById('goalModal').classList.add('show') }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+            if (id === 'goalModal') {
+                editingGoalId = null;
+                document.querySelector('#goalModal h3').textContent = 'Target tabungan baru';
+            }
+        }
+        function toast(s) { let t = document.getElementById('toast'); t.textContent = s; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200) }
+        function saveTx() {
+            let amount = +txAmount.value; if (!amount || amount < 0) return toast('Masukkan jumlah yang valid');
+            data.transactions.push({ id: Date.now(), type: txType.value, date: txDate.value || today(), amount, desc: txDesc.value.trim() || 'Tanpa deskripsi', cat: txCat.value, method: txMethod.value });
+            closeModal('txModal');['txAmount', 'txDesc'].forEach(id => document.getElementById(id).value = ''); save(); toast('Transaksi berhasil disimpan');
+        }
+        function deleteTx(id) { if (confirm('Hapus transaksi ini?')) { data.transactions = data.transactions.filter(x => x.id !== id); save(); toast('Transaksi dihapus') } }
+        let editingGoalId = null;
+        function saveGoal() {
+            let name = goalName.value.trim(), target = +goalTarget.value, saved = +goalSaved.value || 0;
+            if (!name || !target) return toast('Lengkapi nama dan nominal target');
+            if (saved > target) return toast('Tabungan terkumpul tidak boleh melebihi target');
+            if (editingGoalId) {
+                let g = data.goals.find(x => x.id === editingGoalId);
+                if (g) { g.name = name; g.target = target; g.saved = saved; g.date = goalDate.value; }
+                toast('Target berhasil diperbarui');
+            } else {
+                data.goals.push({ id: Date.now(), name, target, saved, date: goalDate.value });
+                toast('Target berhasil dibuat');
+            }
+            editingGoalId = null;
+            closeModal('goalModal');
+            ['goalName', 'goalTarget', 'goalSaved', 'goalDate'].forEach(id => document.getElementById(id).value = '');
+            document.querySelector('#goalModal h3').textContent = 'Target tabungan baru';
+            save();
+        }
+        function editGoal(id) {
+            let g = data.goals.find(x => x.id === id); if (!g) return;
+            editingGoalId = id;
+            document.querySelector('#goalModal h3').textContent = 'Edit target tabungan';
+            document.getElementById('goalName').value = g.name;
+            document.getElementById('goalTarget').value = g.target;
+            document.getElementById('goalSaved').value = g.saved;
+            document.getElementById('goalDate').value = g.date || '';
+            document.getElementById('goalModal').classList.add('show');
+        }
+        function deleteGoal(id) { if (confirm('Hapus target ini?')) { data.goals = data.goals.filter(x => x.id !== id); save(); toast('Target dihapus') } }
+        function addGoalMoney(id) {
+            let g = data.goals.find(x => x.id === id);
+            if (!g) return;
+            let available = data.transactions.filter(x => x.type === 'income').reduce((a, x) => a + x.amount, 0)
+                - data.transactions.filter(x => x.type === 'expense').reduce((a, x) => a + x.amount, 0);
+            let remaining = Math.max(0, g.target - g.saved);
+            if (available <= 0) return toast('Saldo tersedia tidak mencukupi untuk menabung');
+            let raw = prompt('Jumlah yang ingin ditabung ke "' + g.name + '"\\nSaldo tersedia: ' + rp(available) + '\\nSisa target: ' + rp(remaining), String(Math.min(100000, available, remaining)));
+            if (raw === null) return;
+            let v = +raw;
+            if (!v || v <= 0) return toast('Masukkan jumlah yang valid');
+            if (v > available) return toast('Jumlah melebihi saldo tersedia');
+            if (v > remaining) return toast('Jumlah melebihi sisa target');
+            g.saved += v;
+            data.transactions.push({
+                id: Date.now(), type: 'expense', date: today(), amount: v,
+                desc: 'Menabung — ' + g.name, cat: 'Tabungan', method: 'Transfer'
+            });
+            save(); toast('Berhasil menabung ' + rp(v) + ' ke ' + g.name);
+        }
+        function renderAll() { renderStats(); renderGoals(); renderRecent(); renderTransactions(); renderMonthlySummary(); renderReports(); drawCharts(); drawSavingChart() }
+        function renderStats() {
+            let inc = data.transactions.filter(x => x.type === 'income').reduce((a, x) => a + x.amount, 0), exp = data.transactions.filter(x => x.type === 'expense').reduce((a, x) => a + x.amount, 0), saved = data.goals.reduce((a, x) => a + x.saved, 0);
+            balance.textContent = rp(inc - exp); income.textContent = rp(inc); expense.textContent = rp(exp); goalStat.textContent = data.goals.length + ' target'; goalSub.textContent = data.goals.length ? rp(saved) + ' terkumpul' : 'Belum ada target';
+        }
+        function goalHTML(g) { let p = Math.min(100, g.target ? g.saved / g.target * 100 : 0); return `<div class="goal"><div class="goal-row"><div><div class="goal-name">${esc(g.name)}</div><div class="goal-meta">${rp(g.saved)} dari ${rp(g.target)}${g.date ? ' • ' + g.date : ''}</div></div></div><div class="bar"><i style="width:${p}%"></i></div><div class="goal-meta">${p.toFixed(0)}% tercapai</div></div>` }
+        function renderGoals() {
+            goalList.innerHTML = data.goals.length ? data.goals.slice(0, 4).map(goalHTML).join('') : '<div class="empty">Belum ada target. Buat target pertamamu.</div>';
+            goalGrid.innerHTML = data.goals.length ? data.goals.map(g => `<div class="card goal-card"><div class="eyebrow">${g.date ? 'TENGGAT ' + g.date : 'TARGET TABUNGAN'}</div><div class="goal-big">${esc(g.name)}</div><div style="font-weight:750">${rp(g.saved)} <span style="color:#98a2b3;font-weight:500">/ ${rp(g.target)}</span></div><div class="bar"><i style="width:${Math.min(100, g.saved / g.target * 100)}%"></i></div><div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#667085"><span>${Math.min(100, g.saved / g.target * 100).toFixed(0)}%</span><div class="goal-actions"><button class="icon-btn" onclick="addGoalMoney(${g.id})">＋ Tambah</button><button class="icon-btn" onclick="editGoal(${g.id})">✎ Edit</button><button class="icon-btn danger" onclick="deleteGoal(${g.id})">×</button></div></div></div>`).join('') : '<div class="card empty" style="grid-column:1/-1">Belum ada target tabungan.</div>';
+        }
+        function row(x, withDelete = false) { return `<tr><td>${x.date}</td><td><b>${esc(x.desc)}</b></td><td>${esc(x.cat)}</td><td>${esc(x.method)}</td><td class="${x.type}">${x.type === 'income' ? '+' : '−'} ${rp(x.amount)}</td>${withDelete ? `<td><button class="icon-btn danger" onclick="deleteTx(${x.id})">Hapus</button></td>` : ''}</tr>` }
+        function renderRecent() { let a = [...data.transactions].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id).slice(0, 7); recent.innerHTML = a.length ? a.map(x => row(x)).join('') : '<tr><td colspan="5" class="empty">Belum ada transaksi.</td></tr>' }
+        function renderMonthlySummary() {
+            let m = document.getElementById('monthFilter')?.value || currentMonth();
+            let a = data.transactions.filter(x => String(x.date).startsWith(m));
+            let inc = a.filter(x => x.type === 'income').reduce((s, x) => s + x.amount, 0);
+            let exp = a.filter(x => x.type === 'expense').reduce((s, x) => s + x.amount, 0);
+            document.getElementById('monthLabel').textContent = formatMonth(m);
+            document.getElementById('monthIncome').textContent = rp(inc);
+            document.getElementById('monthExpense').textContent = rp(exp);
+            document.getElementById('monthBalance').textContent = rp(inc - exp);
+            document.getElementById('monthCount').textContent = a.length;
+        }
+        function renderTransactions() {
+            let q = (search?.value || '').toLowerCase(), tf = typeFilter?.value || '', cf = catFilter?.value || '', mf = monthFilter?.value || currentMonth();
+            let cats = [...new Set(data.transactions.map(x => x.cat))]; catFilter.innerHTML = '<option value="">Semua kategori</option>' + cats.map(c => `<option ${c === cf ? 'selected' : ''}>${esc(c)}</option>`).join('');
+            let a = [...data.transactions].filter(x => (!mf || String(x.date).startsWith(mf)) && (!q || [x.desc, x.cat, x.method].join(' ').toLowerCase().includes(q)) && (!tf || x.type === tf) && (!cf || x.cat === cf)).sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
+            allTx.innerHTML = a.length ? a.map(x => row(x, true)).join('') : '<tr><td colspan="6" class="empty">Tidak ada transaksi yang cocok.</td></tr>';
+        }
+        function renderReports() {
+            let inc = data.transactions.filter(x => x.type === 'income').reduce((a, x) => a + x.amount, 0), ex = data.transactions.filter(x => x.type === 'expense').reduce((a, x) => a + x.amount, 0), ec = data.transactions.filter(x => x.type === 'expense');
+            savingRate.textContent = (inc ? Math.max(0, (inc - ex) / inc * 100) : 0).toFixed(0) + '%'; txCount.textContent = data.transactions.length; avgExpense.textContent = rp(ec.length ? ex / ec.length : 0); goalFunds.textContent = rp(data.goals.reduce((a, g) => a + g.saved, 0));
+        }
+        function chartSize(c) {
+            let w = c.parentElement.clientWidth || 300, h = c.parentElement.clientHeight || 280, d = window.devicePixelRatio || 1;
+            c.width = Math.max(1, Math.floor(w * d)); c.height = Math.max(1, Math.floor(h * d));
+            c.style.width = w + 'px'; c.style.height = h + 'px';
+            let ctx = c.getContext('2d'); ctx.setTransform(d, 0, 0, d, 0, 0); return { ctx, w, h };
+        }
+        function lastSixMonths() {
+            let dates = data.transactions.map(x => String(x.date || '')).filter(Boolean).sort();
+            if (!dates.length) {
+                let now = new Date();
+                return Array.from({ length: 6 }, (_, i) => {
+                    let x = new Date(now.getFullYear(), now.getMonth() + i, 1);
+                    return { key: `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}`, label: x.toLocaleDateString('id-ID', { month: 'short' }) };
+                });
+            }
+            // Grafik dimulai dari bulan pertama kali ada transaksi, bukan dari bulan sekarang.
+            let first = dates[0].slice(0, 7).split('-').map(Number);
+            let anchor = new Date(first[0], first[1] - 1, 1);
+            return Array.from({ length: 6 }, (_, i) => {
+                let x = new Date(anchor.getFullYear(), anchor.getMonth() + i, 1);
+                return { key: `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}`, label: x.toLocaleDateString('id-ID', { month: 'short' }) };
+            });
+        }
+        function drawCharts() {
+            let c = document.getElementById('cashChart'); if (!c) return;
+            let { ctx, w, h } = chartSize(c);
+            let months = lastSixMonths();
+            let vals = months.map(m => [
+                data.transactions.filter(x => x.type === 'income' && String(x.date).startsWith(m.key)).reduce((a, x) => a + x.amount, 0),
+                data.transactions.filter(x => x.type === 'expense' && String(x.date).startsWith(m.key)).reduce((a, x) => a + x.amount, 0)
+            ]);
+            let max = Math.max(1, ...vals.flat());
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = '#e9ebf1'; ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) { let y = 25 + i * (h - 60) / 4; ctx.beginPath(); ctx.moveTo(42, y); ctx.lineTo(w - 14, y); ctx.stroke(); }
+            let bw = (w - 62) / months.length, base = h - 34;
+            months.forEach((m, i) => {
+                let x = 44 + i * bw, a = vals[i][0] / max * (h - 70), b = vals[i][1] / max * (h - 70);
+                ctx.fillStyle = '#12A878'; ctx.fillRect(x + bw * .08, base - a, bw * .28, a);
+                ctx.fillStyle = '#E85D4A'; ctx.fillRect(x + bw * .43, base - b, bw * .28, b);
+                ctx.fillStyle = '#7b8493'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.fillText(m.label, x + bw * .39, h - 10);
+            });
+            // If all values are zero, still make the chart understandable.
+            if (max === 1 && !data.transactions.some(x => x.type === 'income' || x.type === 'expense')) {
+                ctx.fillStyle = '#98a2b3'; ctx.font = '13px system-ui'; ctx.textAlign = 'center'; ctx.fillText('Belum ada transaksi pada periode ini', w / 2, h / 2);
+            }
+            let cc = document.getElementById('catChart'); if (!cc) return;
+            let pie = chartSize(cc), cx = pie.ctx, cw = pie.w, ch = pie.h;
+            cx.clearRect(0, 0, cw, ch);
+            let map = {}; data.transactions.filter(x => x.type === 'expense').forEach(x => map[x.cat] = (map[x.cat] || 0) + x.amount);
+            let arr = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 7), total = arr.reduce((a, x) => a + x[1], 0);
+            if (!arr.length) { cx.fillStyle = '#8b93a3'; cx.font = '14px system-ui'; cx.textAlign = 'center'; cx.fillText('Belum ada data pengeluaran', cw / 2, ch / 2); return }
+            let palette = ['#12A878', '#E85D4A', '#12A878', '#F4B740', '#8c7ee8', '#4b9fd0', '#9aa3b2'];
+            let center = { x: cw * .32, y: ch / 2 }, rad = Math.min(cw * .25, ch * .34), angle = -Math.PI / 2;
+            arr.forEach((v, i) => { let a = v[1] / total * Math.PI * 2; cx.beginPath(); cx.moveTo(center.x, center.y); cx.arc(center.x, center.y, rad, angle, angle + a); cx.closePath(); cx.fillStyle = palette[i]; cx.fill(); angle += a });
+            cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(center.x, center.y, rad * .58, 0, Math.PI * 2); cx.fill();
+            arr.forEach((v, i) => { let y = 30 + i * 27; cx.fillStyle = palette[i]; cx.fillRect(cw * .58, y, 9, 9); cx.fillStyle = '#475467'; cx.font = '12px system-ui'; cx.textAlign = 'left'; cx.fillText(v[0].length > 16 ? v[0].slice(0, 16) + '…' : v[0], cw * .58 + 15, y + 9); cx.fillStyle = '#667085'; cx.textAlign = 'right'; cx.fillText(rp(v[1]), cw - 8, y + 9) });
+        }
+        function drawSavingChart() {
+            let c = document.getElementById('savingChart'); if (!c) return;
+            let { ctx, w, h } = chartSize(c);
+            let months = lastSixMonths();
+            let vals = months.map(m => data.transactions.filter(x => x.type === 'expense' && x.cat === 'Tabungan' && String(x.date).startsWith(m.key)).reduce((a, x) => a + x.amount, 0));
+            let max = Math.max(1, ...vals), base = h - 34, bw = (w - 62) / months.length;
+            ctx.clearRect(0, 0, w, h);
+            ctx.strokeStyle = '#e9ebf1'; ctx.lineWidth = 1;
+            for (let i = 0; i < 5; i++) { let y = 25 + i * (h - 60) / 4; ctx.beginPath(); ctx.moveTo(42, y); ctx.lineTo(w - 14, y); ctx.stroke(); }
+            // Cumulative savings makes the chart useful even when savings happened in only one month.
+            let cumulative = 0, points = months.map((m, i) => { cumulative += vals[i]; return cumulative });
+            let pmax = Math.max(1, ...points);
+            ctx.beginPath();
+            points.forEach((v, i) => { let x = 44 + i * bw + bw * .39, y = base - (v / pmax) * (h - 70); if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y) });
+            ctx.strokeStyle = '#12A878'; ctx.lineWidth = 3; ctx.stroke();
+            points.forEach((v, i) => { let x = 44 + i * bw + bw * .39, y = base - (v / pmax) * (h - 70); ctx.fillStyle = '#12A878'; ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#667085'; ctx.font = '11px system-ui'; ctx.textAlign = 'center'; ctx.fillText(months[i].label, x, h - 10) });
+            if (!data.transactions.some(x => x.cat === 'Tabungan' && String(x.date || '').slice(0, 7) >= months[0].key && String(x.date || '').slice(0, 7) <= months[months.length - 1].key)) { ctx.fillStyle = '#8b93a3'; ctx.font = '13px system-ui'; ctx.textAlign = 'center'; ctx.fillText('Belum ada transaksi tabungan', w / 2, h / 2); }
+        }
+        function esc(s) { return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])) }
+        function exportCSV() {
+            if (typeof XLSX === 'undefined') {
+                alert('Library Excel belum termuat. Pastikan koneksi internet aktif, lalu coba lagi.');
+                return;
+            }
+
+            const wb = XLSX.utils.book_new();
+            const rows = [['No', 'Tanggal', 'Deskripsi', 'Kategori', 'Pemasukan', 'Pengeluaran', 'Metode']];
+
+            data.transactions.forEach((x, index) => {
+                const amount = Number(x.amount) || 0;
+                rows.push([
+                    index + 1,
+                    x.date || '',
+                    x.desc || '',
+                    x.cat || '',
+                    x.type === 'income' ? amount : '',
+                    x.type === 'expense' ? amount : '',
+                    x.method || ''
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(rows);
+            ws['!cols'] = [
+                { wch: 7 }, { wch: 15 }, { wch: 32 }, { wch: 20 },
+                { wch: 18 }, { wch: 18 }, { wch: 18 }
+            ];
+
+            for (let r = 2; r <= rows.length; r++) {
+                ['E', 'F'].forEach(col => {
+                    const cell = ws[`${col}${r}`];
+                    if (cell && typeof cell.v === 'number') cell.z = '#,##0';
+                });
+            }
+
+            ws['!autofilter'] = { ref: `A1:G${Math.max(1, rows.length)}` };
+            ws['!freeze'] = { xSplit: 0, ySplit: 1 };
+
+            XLSX.utils.book_append_sheet(wb, ws, 'Laporan Keuangan');
+            XLSX.writeFile(wb, 'Laporan Keuangan.xlsx');
+            toast('File Excel berhasil diekspor');
+        }
+        function exportJSON() { download('dompetku-backup.json', 'application/json', JSON.stringify(data, null, 2)) }
+        function download(name, type, text) { let a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 500); toast('File berhasil diekspor') }
+        window.addEventListener('resize', () => { requestAnimationFrame(() => { drawCharts(); drawSavingChart() }) }); if (document.getElementById('monthFilter')) document.getElementById('monthFilter').value = currentMonth(); renderAll(); requestAnimationFrame(() => { drawCharts(); drawSavingChart() }); setTimeout(() => { drawCharts(); drawSavingChart() }, 100);
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</body>
+
+</html>
